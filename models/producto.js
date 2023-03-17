@@ -26,14 +26,21 @@ module.exports = class Producto {
         this.descripcion = descripcion; this.precio = precio;
         }
     guardar() {
-        getProductosDesdeArchivo(productos => {
-            productos.push(this);
-            fs.writeFile(ruta, JSON.stringify(productos), err =>{
+            this.id = Math.random().toString();
+            getProductosDesdeArchivo(productos => {
+                productos.push(this);
+                fs.writeFile(ruta, JSON.stringify(productos), err => {
                 console.log(err);
-            });
-        });
+            });}
+        );
     }
     static mostrarTodo(cb) {
         getProductosDesdeArchivo(cb);
+    }
+    static encontrarPorId (id, cb) {
+        getProductosDesdeArchivo( productos => {
+        const producto = productos.find(p => p.id === id);
+        cb(producto);
+    });
     }
 };

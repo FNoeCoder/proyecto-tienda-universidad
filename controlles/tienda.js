@@ -34,3 +34,11 @@ exports.getOrdenes = (req, res, next) => { res.render('tienda/ordenes', {
   ruta: '/ordenes', tituloPagina: 'Sus Órdenes'
   });
   };
+
+  exports.getProducto = (req, res, next) => {
+    const idProd = req.params.idProducto;
+    Producto.encontrarPorId(idProd, producto => {
+    console.log(producto);
+    });
+    res.redirect('/');
+    };
