@@ -2,22 +2,19 @@ const Producto = require('../models/producto');
 const Carrito = require('../models/carrito');
 
 
-exports.getProductos = (req, res, next) =>
-  {Producto.mostrarTodo(productos => {
-    res.render('tienda/lista-productos', {
-      prods: productos, tituloPagina :
-        'Todos los productos', ruta:'/productos'
-      });
-    });
-};
 
 
-exports.getIndex = (req, res, next) =>
-  {Producto.mostrarTodo(productos => {
+
+exports.getIndex = (req, res, next) =>{
+  Producto.mostrarProductos ()
+  .then(([filas, datosCampo]) => {
     res.render('tienda/index', {
-      prods: productos, tituloPagina :'Tienda', ruta: '/'
-    });
-  });
+      prods: filas,
+      tituloPagina : 'Tienda',
+      ruta: '/'
+    }); 
+  })
+  .catch(err => console.log(err));
 };
 
 
@@ -53,14 +50,27 @@ exports.getOrdenes = (req, res, next) => { res.render('tienda/ordenes', {
   };
 
   exports.getProducto = (req, res, next) => {
-      const idProd = req.params.idProducto;
-      Producto.encontrarPorId(idProd, producto => {
+    const idProd = req.params.idProducto;
+    Producto.encontrarPorId(idProd)
+    .then(([producto]) => {
         res.render('tienda/detalle-producto', {
-          producto: producto,
+          producto: producto[0],
           tituloPagina: producto.titulo,
           ruta: "/productos"
-      })
-      });
+        });   
+    })
+    .catch(err => console.log(err));
+  };
+  
+exports.getProductos = (req, res, next) => {
+  Producto.mostrarTodo().then(([filas, datosCampo]) => {
+    res.render('tienda/lista-productos', {
+      prods: filas,
+      tituloPagina : 'Todos los productos',
+      ruta: '/productos'
+    }); 
+  })
+  .catch(err => console.log(err));      
 };
 
 exports.postCarrito = (req, res, next) => {

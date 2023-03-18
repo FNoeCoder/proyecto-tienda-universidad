@@ -32,8 +32,12 @@ exports.getEditarProducto = (req, res, next) => {
         const precio = req.body.precio;
         const desc = req.body.descripcion;
         const producto = new Producto(null, titulo, urlImagen, desc, precio);
-        producto.guardar();
-        res.redirect('/');
+        producto.guardar()
+        .then(() => {
+          res.redirect('/');
+        })
+        .catch(err => console.log(err)); 
+      
     };
 
 exports.getProductos = (req, res, next) => {
