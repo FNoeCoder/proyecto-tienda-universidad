@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-
+const Carrito = require('./carrito');
 
 
 const ruta = path.join(
@@ -21,19 +21,30 @@ const getProductosDesdeArchivo = (cb) => {
 
 
 module.exports = class Producto {
-    constructor(titulo, urlImagen, descripcion, precio) {
-        this.titulo = titulo; this.urlImagen = urlImagen;
-        this.descripcion = descripcion; this.precio = precio;
+    constructor(id, titulo, urlImagen, descripcion, precio) {
+        this.id = id;
+        this.titulo = titulo;
+        this.urlImagen = urlImagen;
+        this.descripcion = descripcion;
+        this.precio = precio;
         }
-    guardar() {
-            this.id = Math.random().toString();
+        guardar() {
             getProductosDesdeArchivo(productos => {
+            if (this.id) {
+                const indiceProductoExistente = productos.findIndex(prod => prod.id === this.id);
+                const productosActualizados = [...productos];
+                productosActualizados[indiceProductoExistente] = this;
+                fs.writeFile(ruta, JSON.stringify(productosActualizados), err => {
+                    console.log(err);
+                });
+            } else {
+                this.id = Math.random().toString();
                 productos.push(this);
                 fs.writeFile(ruta, JSON.stringify(productos), err => {
-                console.log(err);
+                    console.log(err);
+                    });
+            }
             });}
-        );
-    }
     static mostrarTodo(cb) {
         getProductosDesdeArchivo(cb);
     }
@@ -43,4 +54,16 @@ module.exports = class Producto {
         cb(producto);
     });
     }
+    static borrarPorId(id) {
+        getProductosDesdeArchivo( productos => {
+        const producto = productos.find(prod => prod.id === id);
+        const productosActualizados = productos.filter(prod => prod.id !== id);
+        fs.writeFile(ruta, JSON.stringify(productosActualizados), err => {
+        if (!err) {
+        Carrito.borrarProducto(id, producto.precio);
+        }
+        });
+        });
+        }
 };
+

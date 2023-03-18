@@ -1,20 +1,40 @@
 const Producto = require('../models/producto');
 
-
 exports.getAgregarProducto = (req, res, next) => {
-    res.render('admin/agregar-producto', { tituloPagina: 'Agregar Producto',
-    ruta: '/admin/agregar-producto'
-})};
+    res.render('admin/editar-producto', {
+    tituloPagina: 'Agregar Productos',
+    ruta: '/admin/agregar-producto',
+    editando: false
+    });
+    };
+exports.getEditarProducto = (req, res, next) => {
+    const modoEditar = req.query.editar;
+    if(!modoEditar) {
+    return res.redirect('/');
+    }
+    const idProd = req.params.idProducto;
+    Producto.encontrarPorId(idProd, producto => {
+    if(!product) {
+    return res.redirect('/');
+    }
+    res.render('admin/editar-producto', {
+    tituloPagina: 'Editar Producto',
+    ruta: '/admin/editar-producto',
+    editando: modoEditar,
+    producto: producto
+    });
+    });
+    };
 
-exports.postAgregarProducto = (req, res, next) => {
-    const titulo = req.body.titulo;
-    const urlImagen = req.body.urlImagen;
-    const descripcion = req.body.descripcion;
-    const precio = req.body.precio;
-    const producto = new Producto(titulo, urlImagen, descripcion, precio);
-    producto.guardar();
-    res.redirect("/");
-};
+    exports.postAgregarProducto = (req, res, next) => {
+        const titulo = req.body.titulo;
+        const urlImagen = req.body.urlImagen;
+        const precio = req.body.precio;
+        const desc = req.body.descripcion;
+        const producto = new Producto(null, titulo, urlImagen, desc, precio);
+        producto.guardar();
+        res.redirect('/');
+    };
 
 exports.getProductos = (req, res, next) => {
     Producto.mostrarTodo(productos => {
@@ -24,3 +44,25 @@ exports.getProductos = (req, res, next) => {
     ruta: '/admin/productos'});
     });
 };
+exports.postEditarProducto = (req, res, next) => {
+    const idProd = req.body.idProducto;
+    const tituloActualizado = req.body.titulo;
+    const precioActualizado = req.body.precio;
+    const urlImagenActualizada = req.body.urlImagen;
+    const descActualizada = req.body.descripcion;
+    const productoActualizado = new Producto(
+    idProd,
+    tituloActualizado,
+    urlImagenActualizada,
+    descActualizada,
+    precioActualizado
+    );
+    productoActualizado.guardar();
+    res.redirect('/admin/productos');
+    };
+
+    exports.postBorrarProducto = (req, res, next) => {
+        const idProd = req.body.idProducto;
+        Producto.borrarPorId(idProd);
+        res.redirect('/admin/productos');
+        };

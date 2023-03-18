@@ -1,4 +1,6 @@
 const Producto = require('../models/producto');
+const Carrito = require('../models/carrito');
+
 
 exports.getProductos = (req, res, next) =>
   {Producto.mostrarTodo(productos => {
@@ -19,10 +21,25 @@ exports.getIndex = (req, res, next) =>
 };
 
 
-exports.getCarrito = (req, res, next) => { res.render('tienda/carrito', {
-  ruta: '/carrito', tituloPagina: 'Su Carrito'
+exports.getCarrito = (req, res, next) => {
+  Carrito.getCarrito(carrito => {
+  Producto.mostrarProductos(productos => {
+  const productosCarrito = [];
+  for (producto of productos) {
+  const datosProductoEnCarrito = carrito.productos.find(prod => prod.id === producto.id);
+  if(datosProductoEnCarrito) {
+  productosCarrito.push({datosProducto: producto, cant:datosProductoEnCarrito.cant});
+  
+  }
+  }
+  res.render('tienda/carrito' , {
+  ruta: '/carrito',
+  tituloPagina: 'Su Carrito',
+  productos: productosCarrito
   });
-};
+  });
+  });
+  };
 
 exports.getComprarAhora = (req, res, next) => {
    res.render('tienda/comprar-ahora', { 
@@ -51,5 +68,12 @@ exports.postCarrito = (req, res, next) => {
   Producto.encontrarPorId(idProd, producto => {
   Carrito.agregarProducto(idProd, producto.precio);
   });
-  res.redirect('/carrito');
-}
+  res.redirect('/carrito');}
+
+  exports.postBorrarArticuloCarrito = (req, res, next) => {
+    const idProd = req.body.idProducto;
+    Producto.encontrarPorId(idProd, producto => {
+    Carrito.borrarProducto(idProd, producto.precio);
+    res.redirect('/carrito');
+    });
+    };
