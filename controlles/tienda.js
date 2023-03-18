@@ -36,9 +36,20 @@ exports.getOrdenes = (req, res, next) => { res.render('tienda/ordenes', {
   };
 
   exports.getProducto = (req, res, next) => {
-    const idProd = req.params.idProducto;
-    Producto.encontrarPorId(idProd, producto => {
-    console.log(producto);
-    });
-    res.redirect('/');
-    };
+      const idProd = req.params.idProducto;
+      Producto.encontrarPorId(idProd, producto => {
+        res.render('tienda/detalle-producto', {
+          producto: producto,
+          tituloPagina: producto.titulo,
+          ruta: "/productos"
+      })
+      });
+};
+
+exports.postCarrito = (req, res, next) => {
+  const idProd = req.body.idProducto;
+  Producto.encontrarPorId(idProd, producto => {
+  Carrito.agregarProducto(idProd, producto.precio);
+  });
+  res.redirect('/carrito');
+}
