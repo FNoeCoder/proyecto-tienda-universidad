@@ -37,9 +37,10 @@ module.exports = class Producto {
         }
     static mostrarTodo(cb) {
     }
-    static encontrarPorId (id, cb) {
-
+    static encontrarPorId (id) {
+        return bd.execute('SELECT * FROM productos WHERE productos.id = ?', [id]);
     }
+    
     static borrarPorId(id) {
 
     }
